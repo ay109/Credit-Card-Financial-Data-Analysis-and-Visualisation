@@ -1,0 +1,43 @@
+# Dax Query to make a new column with age group classification
+
+Age Group = SWITCH(
+    TRUE(),
+    'ccdb cust_detail'[Customer_Age] <30, "20-30",
+    'ccdb cust_detail'[Customer_Age] >= 30 && 'ccdb cust_detail'[Customer_Age] <40, "30-40",
+    'ccdb cust_detail'[Customer_Age] >= 40 && 'ccdb cust_detail'[Customer_Age] <50, "40-50",
+    'ccdb cust_detail'[Customer_Age] >= 50 && 'ccdb cust_detail'[Customer_Age] <60, "50-60",
+    'ccdb cust_detail'[Customer_Age] >= 60, "60+",
+    "unknown"
+    )
+
+# DAX Query to make a new column with income group classification
+
+Income Group = SWITCH(
+    TRUE(),
+    'ccdb cust_detail'[Income] <35000, "Low",
+    'ccdb cust_detail'[Income] >=35000 && 'ccdb cust_detail'[Income] <= 70000, "Medium",
+    'ccdb cust_detail'[Income] >= 70000, "High",
+    "Unknown"
+)
+
+# DAX Query to create a new column with week number for week by week data analysis
+
+Week_Num2 = WEEKNUM('ccdb cc_detail'[Week_Start_Date]) 
+
+# DAX Query to create new columns for current week revenue and previous week revenue for week on week growth analysis
+
+Current Week Revenue = CALCULATE(
+    SUM('ccdb cc_detail'[Revenue]),
+    FILTER(
+        ALL('ccdb cc_detail'),
+        'ccdb cc_detail'[Week_Num2] = MAX('ccdb cc_detail'[Week_Num2])))
+
+Previous Week Revenue = CALCULATE(
+    SUM('ccdb cc_detail'[Revenue]),
+    FILTER(
+        ALL('ccdb cc_detail'),
+        'ccdb cc_detail'[Week_Num2] = MAX('ccdb cc_detail'[Week_Num2])-1))
+
+# DAX Query to calculate week on week percentage change in revenue
+
+WoW Revenue = DIVIDE(([Current Week Revenue]-[Previuos Week Revenue]),[Previuos Week Revenue])
